@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB.svg)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6.svg)](#)
 
-**[作品介紹與開發故事](https://cornhsu.com/pdf-unlock.html) · MIT**
+**[作品介紹與開發故事](https://cornhsu.com/pdf-unlock) · MIT**
 
 > 有些 PDF 設了開啟密碼,每次打開都得重打一次。這支小工具的用途很單純:
 > 對於**你本來就知道密碼**的 PDF,輸入一次密碼,輸出一份移除密碼、日後開啟免輸入的副本。
