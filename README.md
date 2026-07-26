@@ -40,8 +40,19 @@ pyinstaller --noconsole --onefile --name PDFUnlocker --version-file version.txt 
 漏掉它,打包出來的 exe 一遇到 AES 加密的檔案就會失敗。
 `--noconsole` 讓執行檔不帶黑色主控台視窗;`version.txt` 是內嵌的版本資訊(MIT 授權)。
 
-產物在 `dist/PDFUnlocker.exe`。執行檔未經數位簽章,Windows SmartScreen 可能顯示
-「未知發行者」,點「其他資訊 → 仍要執行」即可。
+產物在 `dist/PDFUnlocker.exe`。
+
+### 程式碼簽章
+
+[Releases](https://github.com/HSU-YU-MING/PDFUnlocker/releases) 提供的執行檔已以
+IV 程式碼簽章憑證(`YU-MING HSU`,SSL.com 簽發)完成數位簽章,並帶 RFC3161 時戳——
+即使憑證日後到期,已簽署的檔案仍然有效。右鍵 → 內容 → 數位簽章可驗證。
+
+自行打包後要簽章的話,執行 `sign.ps1`(需持有憑證的硬體金鑰):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File sign.ps1
+```
 
 ## 操作流程
 

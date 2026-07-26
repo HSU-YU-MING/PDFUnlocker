@@ -15,11 +15,11 @@ VSVersionInfo(
       StringTable(
         '040904B0',
         [
-          StringStruct('CompanyName', 'PDF Tools by tmhao'),
+          StringStruct('CompanyName', '許彧銘'),
           StringStruct('FileDescription', 'Safe PDF Unlocker Utility'),
           StringStruct('FileVersion', '1.0.0.0'),
           StringStruct('InternalName', 'PDFUnlocker'),
-          StringStruct('LegalCopyright', '(C) 2025 tmhao'),
+          StringStruct('LegalCopyright', '(C) 2025 許彧銘'),
           StringStruct('OriginalFilename', 'PDFUnlocker.exe'),
           StringStruct('ProductName', 'PDF Unlocker'),
           StringStruct('ProductVersion', '1.0.0.0')
