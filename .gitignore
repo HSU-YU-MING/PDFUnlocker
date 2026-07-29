@@ -31,6 +31,9 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+#  ...but PDFUnlocker.spec is hand-edited (hiddenimports, versioned build),
+#  so it is source, not a generated artifact. Keep it in the repo.
+!PDFUnlocker.spec
 
 # Installer logs
 pip-log.txt
