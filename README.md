@@ -14,7 +14,7 @@
 
 ## 這不是破解工具
 
-密碼錯了就解不開——解密交由 PyPDF2 把關,本工具沒有任何猜測、暴力嘗試或繞過機制。
+密碼錯了就解不開——解密交由 pypdf 把關,本工具沒有任何猜測、暴力嘗試或繞過機制。
 
 請只用在**你自己擁有、且已經知道密碼**的檔案上。
 
@@ -23,22 +23,26 @@
 ### 直接跑原始碼
 
 ```sh
-pip install PyPDF2 pycryptodome
+pip install pypdf cryptography
 python pdf_unlocker.py
 ```
 
-`pycryptodome` 是 AES 加密 PDF 的解密後端。不裝的話,一般 RC4 加密的 PDF 仍然解得開,
+`cryptography` 是 AES 加密 PDF 的解密後端。不裝的話,一般 RC4 加密的 PDF 仍然解得開,
 但 AES 加密的檔案會失敗——而這正是同類工具最常見的失敗原因。
 
 ### 打包成單檔 exe
 
 ```sh
-pyinstaller --noconsole --onefile --name PDFUnlocker --version-file version.txt --hidden-import=Crypto pdf_unlocker.py
+pyinstaller PDFUnlocker.spec
 ```
 
-`--hidden-import=Crypto` 不能省:PyInstaller 的靜態分析看不到 PyPDF2 對 `Crypto` 的動態載入,
-漏掉它,打包出來的 exe 一遇到 AES 加密的檔案就會失敗。
-`--noconsole` 讓執行檔不帶黑色主控台視窗;`version.txt` 是內嵌的版本資訊(MIT 授權)。
+**一定要走 `.spec`,不要自己敲 pyinstaller 參數。** pypdf 是在執行期才從
+`_crypt_providers` 挑後端(cryptography → pycryptodome → 無),PyInstaller 的靜態分析
+看不到這條動態載入路徑;`.spec` 的 `hiddenimports` 已經把 `pypdf._crypt_providers._cryptography`
+和它用到的四個 `cryptography.hazmat` 模組列進去。漏掉的話打包出來的 exe
+一遇到 AES 加密的檔案就會失敗,而且是**只有打包版會失敗、原始碼跑得好好的**。
+
+`.spec` 內已設定 `--onefile` 等價選項、不帶主控台視窗,以及內嵌 `version.txt` 版本資訊。
 
 產物在 `dist/PDFUnlocker.exe`。
 
@@ -73,10 +77,10 @@ powershell -ExecutionPolicy Bypass -File sign.ps1
 
 | | |
 |---|---|
-| 核心 | Python · PyPDF2(`PdfReader` / `PdfWriter`) |
+| 核心 | Python · pypdf(`PdfReader` / `PdfWriter`) |
 | 介面 | Tkinter(檔案選擇、密碼輸入、另存對話框、訊息提示) |
-| 加密支援 | pycryptodome(`Crypto`)——支援 AES 加密的 PDF |
-| 打包 | PyInstaller `--onefile --noconsole` · 內嵌版本資訊 |
+| 加密支援 | cryptography——支援 AES 加密的 PDF |
+| 打包 | PyInstaller `.spec`(`--onefile --noconsole` · 內嵌版本資訊) |
 | 平台 / 授權 | Windows · MIT |
 
 ## 授權
