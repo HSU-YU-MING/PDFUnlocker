@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # 這個專案唯一值得自動化的主張:「原始碼解得開 AES,不代表打包後的 exe 解得開」。
+  # 打包後才會壞的東西（動態載入的加密後端、被 PyInstaller 分析漏掉的模組)
+  # 要等使用者拿到才會發現,所以這裡不測原始碼,直接測產出的那顆 exe。
+  #
+  # 注意:這個 job 抓的是「打包版解不開 AES」這個症狀,不是特定成因。
+  # 2026-08-13 實測把 .spec 的 hiddenimports 清空,現行版本組合下 exe 照樣解得開——
+  # 所以別把它當成 hiddenimports 的守門員,它守的是使用者真正會遇到的那件事。
+  frozen-selftest:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: 安裝相依
+        run: pip install pypdf cryptography pyinstaller
+
+      - name: 打包
+        run: pyinstaller PDFUnlocker.spec
+
+      # exe 是 GUI subsystem（console=False）,PowerShell 不會等它結束,
+      # 直接呼叫會拿不到離開碼。一定要 Start-Process -Wait -PassThru。
+      - name: 打包版自我測試（RC4-40 / RC4-128 / AES-128 / AES-256）
+        run: |
+          $p = Start-Process -FilePath dist\PDFUnlocker.exe -ArgumentList '--self-test' -Wait -PassThru
+          if ($p.ExitCode -ne 0) {
+            Write-Error "打包版解密失敗（離開碼 $($p.ExitCode)）——多半是 .spec 的 hiddenimports 漏了 AES 後端"
+            exit 1
+          }
+          Write-Output "四種演算法在打包版上都解得開"
+
+      - name: 內嵌版本資訊要對得上 version.txt
+        run: |
+          $embedded = (Get-Item dist\PDFUnlocker.exe).VersionInfo.FileVersion
+          python tools/check_version.py
+          $declared = (Select-String -Path version.txt -Pattern "StringStruct\('FileVersion', '([\d.]+)'\)").Matches[0].Groups[1].Value
+          if ($embedded -ne $declared) {
+            Write-Error "exe 內嵌 $embedded,但 version.txt 寫 $declared"
+            exit 1
+          }
+          Write-Output "內嵌版本 $embedded"
+
+  # 只在推 tag 時跑:擋「簽章過的 exe 帶著上一版版本號出門」。
+  # 這種錯沒有任何症狀,要等使用者在「內容 → 詳細資料」看到才會發現。
+  version-matches-tag:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: python tools/check_version.py ${{ github.ref_name }}
