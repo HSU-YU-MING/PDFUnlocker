@@ -1,5 +1,6 @@
 # PDF Unlocker
 
+[![CI](https://github.com/HSU-YU-MING/PDFUnlocker/actions/workflows/ci.yml/badge.svg)](https://github.com/HSU-YU-MING/PDFUnlocker/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB.svg)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6.svg)](#)
@@ -9,7 +10,8 @@
 > 有些 PDF 設了開啟密碼,每次打開都得重打一次。這支小工具的用途很單純:
 > 對於**你本來就知道密碼**的 PDF,輸入一次密碼,輸出一份移除密碼、日後開啟免輸入的副本。
 
-一個 450×250 的固定視窗,三個動作走完:選檔 → 輸入密碼 → 另存。
+一個不能縮放的小視窗,三個動作走完:選檔 → 輸入密碼 → 另存。
+（尺寸不寫死——版面由 tkinter 依實際字級撐開,才不會在高 DPI 縮放下裁掉內容。）
 原始加密檔保留不動,結果另存成新檔。
 
 ## 這不是破解工具
@@ -17,6 +19,7 @@
 密碼錯了就解不開——解密交由 pypdf 把關,本工具沒有任何猜測、暴力嘗試或繞過機制。
 
 請只用在**你自己擁有、且已經知道密碼**的檔案上。
+它碰得到什麼、碰不到什麼(不連網、密碼不落地、原檔只讀)寫在 [SECURITY.md](SECURITY.md)。
 
 ## 使用方式
 
@@ -36,13 +39,22 @@ python pdf_unlocker.py
 pyinstaller PDFUnlocker.spec
 ```
 
-**一定要走 `.spec`,不要自己敲 pyinstaller 參數。** pypdf 是在執行期才從
-`_crypt_providers` 挑後端(cryptography → pycryptodome → 無),PyInstaller 的靜態分析
-看不到這條動態載入路徑;`.spec` 的 `hiddenimports` 已經把 `pypdf._crypt_providers._cryptography`
-和它用到的四個 `cryptography.hazmat` 模組列進去。漏掉的話打包出來的 exe
-一遇到 AES 加密的檔案就會失敗,而且是**只有打包版會失敗、原始碼跑得好好的**。
+**一定要走 `.spec`,不要自己敲 pyinstaller 參數。** `--onefile` 等價選項、不帶主控台視窗、
+內嵌 `version.txt` 版本資訊,還有 pypdf AES 後端的 `hiddenimports`,全都在裡面。
 
-`.spec` 內已設定 `--onefile` 等價選項、不帶主控台視窗,以及內嵌 `version.txt` 版本資訊。
+那五個 `hiddenimports` 目前是**保險而非必要**:pypdf 在執行期才從 `_crypt_providers`
+挑後端(cryptography → pycryptodome → 無),而 2026-08-13 實測 PyInstaller 6.21.0 追得到
+這條 try/except 載入鏈——清空 hiddenimports 重新打包,AES-128 / AES-256 一樣解得開。
+留著是防未來版本收緊分析,因為這類問題的症狀很難查:**只有打包版會失敗、原始碼跑得好好的**。
+
+不必相信上面這段話——每次 push 由 CI 打包後實跑驗證:
+
+```sh
+PDFUnlocker.exe --self-test
+```
+
+產生 RC4-40 / RC4-128 / AES-128 / AES-256 四種加密 PDF 各解一次(順便確認錯誤密碼會被擋下),
+全過離開碼 0。這支 exe 沒有主控台,所以它只給離開碼、不印任何東西。
 
 產物在 `dist/PDFUnlocker.exe`。
 
