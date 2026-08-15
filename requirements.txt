@@ -1,0 +1,16 @@
+# 這個檔案存在的理由不是「方便安裝」,而是「讓 Dependabot 看得見」。
+#
+# pypdf 跟 cryptography 是靜態包進 exe 出貨的——套件出漏洞時,使用者手上那顆
+# exe 不會自己更新,得等這邊重新打包發版。所以「有沒有人在盯這兩個套件的 CVE」
+# 是使用者實際暴露多久的直接決定因素。GitHub 只認得 manifest 檔,不會去讀
+# workflow 裡的 pip install 指令,沒有這個檔案 Dependabot 就是空轉的。
+#
+# 版本要釘死:CI 測的、本機打包的、出貨的必須是同一組,否則 CI 綠燈證明不了
+# 使用者手上那顆 exe 沒問題。要升版就改這裡的數字,讓 CI 重跑一次 --self-test。
+
+pypdf==6.14.2
+cryptography==49.0.0
+
+# 建置工具,不是執行期相依,但一樣釘住——PyInstaller 換版會影響打包結果
+# (hiddenimports 的分析行為、bootloader),不該在無聲無息之間變動。
+pyinstaller==6.21.0

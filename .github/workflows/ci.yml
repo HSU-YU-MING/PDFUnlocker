@@ -24,8 +24,9 @@ jobs:
         with:
           python-version: '3.x'
 
+      # 走 requirements.txt 而不是直接 pip install:版本釘死,CI 測的就是打包出貨的那組。
       - name: 安裝相依
-        run: pip install pypdf cryptography pyinstaller
+        run: pip install -r requirements.txt
 
       - name: 打包
         run: pyinstaller PDFUnlocker.spec
