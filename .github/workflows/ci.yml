@@ -7,6 +7,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+# 這裡的兩個 job 都只讀不寫:checkout、裝套件、打包、比對版本號,沒有一個
+# 需要寫回 GitHub。不寫這段的話 GITHUB_TOKEN 拿的是預設權限——相依套件
+# 哪天被投毒,它在 CI 裡跑的當下就握有一把能改這個 repo 的 token。
+permissions:
+  contents: read
+
 jobs:
   # 這個專案唯一值得自動化的主張:「原始碼解得開 AES,不代表打包後的 exe 解得開」。
   # 打包後才會壞的東西（動態載入的加密後端、被 PyInstaller 分析漏掉的模組)
