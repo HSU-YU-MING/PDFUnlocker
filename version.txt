@@ -1,8 +1,8 @@
 # version.txt
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 0, 3, 0),
-    prodvers=(1, 0, 3, 0),
+    filevers=(1, 0, 4, 0),
+    prodvers=(1, 0, 4, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x4,
@@ -17,12 +17,12 @@ VSVersionInfo(
         [
           StringStruct('CompanyName', '許彧銘 (YU-MING HSU)'),
           StringStruct('FileDescription', 'Safe PDF Unlocker Utility'),
-          StringStruct('FileVersion', '1.0.3.0'),
+          StringStruct('FileVersion', '1.0.4.0'),
           StringStruct('InternalName', 'PDFUnlocker'),
           StringStruct('LegalCopyright', '(C) 2025 許彧銘'),
           StringStruct('OriginalFilename', 'PDFUnlocker.exe'),
           StringStruct('ProductName', 'PDF Unlocker'),
-          StringStruct('ProductVersion', '1.0.3.0')
+          StringStruct('ProductVersion', '1.0.4.0')
         ]
       )
     ]),
