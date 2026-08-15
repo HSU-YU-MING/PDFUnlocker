@@ -23,6 +23,10 @@ jobs:
   # 所以別把它當成 hiddenimports 的守門員,它守的是使用者真正會遇到的那件事。
   frozen-selftest:
     runs-on: windows-latest
+    # exe 是 GUI subsystem,沒有 console。它一旦不結束,Start-Process -Wait 就永遠等下去,
+    # 而預設逾時是 6 小時——2026-08-15 實際卡滿過一次。這裡的失敗訊號本來就該在幾分鐘內
+    # 出現(打包約 1 分鐘、自我測試幾秒),15 分鐘綽綽有餘。
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
