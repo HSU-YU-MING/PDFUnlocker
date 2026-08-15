@@ -9,7 +9,7 @@
 # 使用者手上那顆 exe 沒問題。要升版就改這裡的數字,讓 CI 重跑一次 --self-test。
 
 pypdf==6.14.2
-cryptography==49.0.0
+cryptography==50.0.0
 
 # 建置工具,不是執行期相依,但一樣釘住——PyInstaller 換版會影響打包結果
 # (hiddenimports 的分析行為、bootloader),不該在無聲無息之間變動。
