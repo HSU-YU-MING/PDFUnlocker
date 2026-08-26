@@ -73,4 +73,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - run: python tools/check_version.py ${{ github.ref_name }}
+      # ref 名稱經 env 傳入而不是直接內插進 run:tag 名可含 shell 特殊字元,
+      # 與四個 NuGet repo 的 release.yml 同一寫法。
+      - env:
+          REF_NAME: ${{ github.ref_name }}
+        run: python tools/check_version.py "$REF_NAME"
