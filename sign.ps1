@@ -11,9 +11,21 @@ $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 
 # ===================== 只改這一區 =====================
-$SignTool = 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe'
-$Thumb    = '5773AB1F9EB95258C45387CA166AD3D64A2EFDD5'
-$TsUrl    = 'http://ts.ssl.com'
+# 憑證指紋、signtool 路徑、時戳伺服器:五個 App 共用,收在 D:\應用程式\codesign.psd1 一份。
+# ⚠ 不要在這裡寫回實際的指紋。以前這三行在五份 sign.ps1 裡各寫一次(加上 Kindling\docs\
+#   兩份文件共七處),而憑證 2027/10/25 到期 —— 換證時漏掉一處,那個 App 就在發版當下簽不出來。
+# 往上找而不是寫死相對路徑:五支腳本在不同深度(有的在專案根、有的在 專案\專案\)。
+$cfgDir = $PSScriptRoot
+while ($cfgDir -and -not (Test-Path -LiteralPath (Join-Path $cfgDir 'codesign.psd1'))) {
+    $cfgDir = Split-Path $cfgDir -Parent
+}
+if (-not $cfgDir) {
+    throw "找不到 codesign.psd1(應在 D:\應用程式\)——簽章設定的單一真相源不見了,不要改用寫死的指紋。"
+}
+$CodeSign = Import-PowerShellDataFile -LiteralPath (Join-Path $cfgDir 'codesign.psd1')
+$SignTool = $CodeSign.SignTool
+$Thumb    = $CodeSign.Thumbprint
+$TsUrl    = $CodeSign.TimestampUrl
 
 # 內容物：你的 exe + 自帶第三方 exe（相對本腳本位置）
 $ContentFiles = @(
